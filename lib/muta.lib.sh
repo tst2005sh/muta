@@ -21,6 +21,7 @@ muta() {
 	local maxprocs="${MUTA_MAXPROCS:-}"
 	local keeplog="${MUTA_KEEPLOG:-false}"
 	local progress="${MUTA_PROGRESS:-false}"
+	local stderr_file_prefixed="${MUTA_STDERR_FILE_PREFIXED:-false}"
 	while [ $# -gt 0 ]; do
 		case "$1" in
 		(--help)
@@ -64,7 +65,11 @@ muta() {
 	cat "$resultdir"/*.log
 
 	if cat "$resultdir"/*.err|grep -q ''; then
-		grep >&2 -H '' "$resultdir"/*.err
+		if [ "${stderr_file_prefixed}" = true ]; then
+			grep >&2 -H '' "$resultdir"/*.err
+		else
+			grep >&2 -h '' "$resultdir"/*.err
+		fi
 	fi
 	if ${keeplog:-true}; then
 		echo >&2 "resultdir=$resultdir"
